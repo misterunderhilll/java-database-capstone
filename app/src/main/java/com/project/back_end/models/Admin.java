@@ -1,7 +1,7 @@
 package com.project.back_end.models;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "admin")
@@ -48,7 +48,7 @@ public class Admin {
     }
 
     public void setPassword(String password) {
-        this.password = pasword;
+        this.password = password;
     }
 
 }
