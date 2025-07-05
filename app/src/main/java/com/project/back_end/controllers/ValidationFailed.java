@@ -1,18 +1,35 @@
 package com.project.back_end.controllers;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+@RestControllerAdvice
 public class ValidationFailed {
 
-// 1. Set Up the Global Exception Handler:
-//    - Annotate the class with `@RestControllerAdvice` to apply it globally across all controllers.
-//    - This class is responsible for handling exceptions and customizing error responses uniformly.
+    // 2. Handle validation exceptions globally
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Map<String, String>> handleValidationException(MethodArgumentNotValidException ex) {
+        // Extract all field errors messages
+        List<String> errorMessages = ex.getBindingResult()
+                                       .getFieldErrors()
+                                       .stream()
+                                       .map(FieldError::getDefaultMessage)
+                                       .collect(Collectors.toList());
 
+        // Join messages into a single string separated by commas (or handle as you prefer)
+        String combinedMessage = String.join(", ", errorMessages);
 
-// 2. Define the `handleValidationException` Method:
-//    - Annotate with `@ExceptionHandler(MethodArgumentNotValidException.class)` to intercept validation exceptions thrown when a request body fails `@Valid` checks.
-//    - Iterates through all field validation errors from the exception.
-//    - Extracts and collects default error messages (e.g., "Email is required", "Invalid phone number").
-//    - Constructs a response map containing the error message under the `"message"` key.
-//    - Returns a `ResponseEntity` with HTTP 400 Bad Request status and the error message in the body.
-
-
+        // Return a map with the message key
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(Map.of("message", combinedMessage));
+    }
 }
